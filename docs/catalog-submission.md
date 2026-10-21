@@ -35,7 +35,8 @@ capabilities:
 The tool, hook, and middleware lists are empty because the package does not
 register native Python capabilities. The default MCP connection requires
 `TAVILY_API_KEY`, so declare it in `requires_env`. Disclose the remotely
-discovered tools and the optional native OAuth override explicitly. Do not put
+discovered tools and the recommended native OAuth setup explicitly. OAuth users
+do not need an API key; the declaration describes the packaged fallback. Do not put
 remote MCP tool names in the native `provides_tools` list.
 
 ## Disclosures for the PR
@@ -45,7 +46,9 @@ remote MCP tool names in the native `provides_tools` list.
 - HTTPS requests to `mcp.tavily.com`; Tavily processes queries, URLs, and research
   instructions, using account credits.
 - Fixed attribution: `X-Client-Name: hermes plugin`.
-- Hermes-managed API key by default; optional native Hermes OAuth configuration.
+- Recommended interactive setup uses Hermes-managed OAuth. The portable package
+  supplies API-key authentication when no native connection overrides it; the
+  README and examples explicitly separate the two methods.
 - No runtime dependencies, local executables, shell commands, background
   workers, credential-file reads, core overrides, or self-updater.
 - Five remotely discovered tools and one bundled skill; no Desktop renderer code.

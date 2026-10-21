@@ -22,9 +22,11 @@ MCP tools; it does not add API parameters or change account settings.
 
 ## Prerequisites
 
-Enable this plugin and configure `TAVILY_API_KEY` through Hermes for the active
-profile. The expected MCP server is `tavily`. Never ask for a key in chat, read
-credential files, or put credentials in URLs or tool arguments.
+Enable this plugin and connect the `tavily` MCP server in the active Hermes
+profile. OAuth is the recommended interactive setup; an API key is an
+alternative. Follow the repository README for authentication. Never ask for a
+key or token in chat, read credential files, or put credentials in URLs or tool
+arguments.
 
 Check the available tool schemas before calling tools. Hermes exposes the names
 below for this package. If a tool is unavailable, report the connection or

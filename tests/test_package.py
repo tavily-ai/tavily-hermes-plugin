@@ -13,7 +13,7 @@ import httpx
 from agent.secret_scope import reset_multiplex_context, reset_secret_scope, set_multiplex_context, set_secret_scope
 from hermes_cli.agent_plugins import load_agent_plugin
 from hermes_cli.plugin_validate import validate_plugin_dir
-from tools.mcp_tool_config import _interpolate_env_vars, _require_rendered_remote
+from tools.mcp_tool_config import _interpolate_env_vars, _load_mcp_config, _require_rendered_remote
 from tools.mcp_tool_errors import _make_redirect_header_stripper
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -78,12 +78,57 @@ class PackageTests(unittest.TestCase):
             for target in re.findall(r"\]\((references/[^)]+)\)", body):
                 self.assertTrue((skill.root / target).is_file(), target)
 
+    def _load_connection_example(self, filename, secrets):
+        from hermes_cli.plugins import PluginManager
+
+        home = Path(self.temp.name) / "configured-home"
+        installed = home / "plugins" / "tavily"
+        shutil.copytree(ROOT, installed, ignore=shutil.ignore_patterns(".git", "__pycache__", "verification-results"))
+        (home / "config.yaml").write_text(
+            "plugins:\n  enabled: [tavily]\n" + (ROOT / "examples" / filename).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        bundled = home / "empty-bundled"
+        bundled.mkdir()
+        with patch.dict(os.environ, {"HERMES_HOME": str(home), "HERMES_BUNDLED_PLUGINS": str(bundled),
+                                     "TAVILY_API_KEY": "foreign-profile-value"}):
+            manager = PluginManager(scope_key=str(home))
+            multiplex = set_multiplex_context(True)
+            token = set_secret_scope(secrets)
+            try:
+                manager.discover_and_load()
+                with patch("hermes_cli.plugins.get_plugin_manager", return_value=manager):
+                    servers = _load_mcp_config()
+                self.assertEqual(set(servers), {"tavily"})
+                self.assertEqual(len(manager.list_plugin_skill_metadata()), 1)
+                return _require_rendered_remote("tavily", servers["tavily"])
+            finally:
+                manager.unload()
+                reset_secret_scope(token)
+                reset_multiplex_context(multiplex)
+
+    def test_oauth_setup_replaces_packaged_key_auth_without_requiring_a_key(self):
+        server = self._load_connection_example("oauth.yaml", {})
+        self.assertEqual(server["auth"], "oauth")
+        self.assertEqual(server["headers"], {"X-Client-Name": "hermes plugin"})
+        self.assertEqual(server["url"], "https://mcp.tavily.com/mcp/")
+        self.assertEqual(server["timeout"], 900)
+        self.assertTrue(server["strict_redirect_headers"])
+
+    def test_api_key_setup_uses_only_the_selected_profile_key(self):
+        server = self._load_connection_example("api-key.yaml", {"TAVILY_API_KEY": "profile-key"})
+        self.assertNotEqual(server.get("auth"), "oauth")
+        self.assertEqual(server["headers"]["Authorization"], "Bearer profile-key")
+        self.assertEqual(server["headers"]["X-Client-Name"], "hermes plugin")
+        self.assertEqual(server["timeout"], 900)
+        self.assertTrue(server["strict_redirect_headers"])
+
     def test_installed_package_exposes_skill_and_mcp_only_when_enabled(self):
         from hermes_cli.plugins import PluginManager
 
         home = Path(self.temp.name) / "home"
         installed = home / "plugins" / "tavily"
-        shutil.copytree(ROOT, installed, ignore=shutil.ignore_patterns(".git", "__pycache__"))
+        shutil.copytree(ROOT, installed, ignore=shutil.ignore_patterns(".git", "__pycache__", "verification-results"))
         bundled = home / "empty-bundled"
         bundled.mkdir()
         with patch.dict(os.environ, {"HERMES_HOME": str(home), "HERMES_BUNDLED_PLUGINS": str(bundled)}):
