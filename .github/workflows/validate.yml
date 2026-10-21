@@ -37,6 +37,7 @@ jobs:
           sparse-checkout: |
             /*.py
             /agent/
+            /gateway/
             /hermes_cli/
             /hermes_platform/
             /tools/
