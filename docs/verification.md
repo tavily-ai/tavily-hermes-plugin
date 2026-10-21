@@ -134,5 +134,36 @@ Research were exercised directly through Hermes's MCP runtime in the OAuth run
 above. Terminal UI interactions and production analytics ingestion were not
 part of this conversation test.
 
+## Restored eight-skill conversation (2026-10-21)
+
+Tested package `afee3b5631547673c90b96c632f8673def4f8415` with the same real
+Hermes development checkout and Nous model above. `skills_list` discovered all
+eight expected skills. The model loaded `tavily-web`,
+`product-competitor-intelligence`, and the latter's original
+`templates/brief.md` through `skill_view`.
+
+The prompt requested a comparison of Tavily Search's basic and advanced depth
+using one Search result from `docs.tavily.com`, followed by one Extract of that
+URL. The conversation completed normally after five model calls. Exactly one
+Search and one Extract were made, both with HTTP 200 and nonempty payloads;
+Extract returned 2,159 characters from the selected SDK-reference page. The
+final answer cited that page. Assertions checked all eight discovered names,
+both loaded skills, the template, actual request counts, provider payloads,
+request IDs, the citation, OAuth use without a Tavily API key, and exact
+`X-Client-Name: hermes plugin` attribution.
+
+An earlier run at `539c5a6a0496ee89b4211fc680595f6d6f1b0d33` failed: Tavily
+returned rate-limit errors inside HTTP-200 MCP responses, and the model retried
+despite the requested call limit. That failure prompted explicit skill guidance
+to count failed attempts against the limit and stop on rate/credit-limit errors.
+The successful follow-up made no retries. This is instruction-level guidance;
+the successful run did not exercise another rate-limit error, so it does not
+prove deterministic enforcement of that failure branch by every model.
+
+The previous five-tool OAuth tests verify the unchanged MCP configuration.
+The restored-bundle conversation exercises general and competitor workflows;
+it does not represent a live test of every specialized research scenario or
+every SDK integration example.
+
 Do not describe these remaining checks as passed or describe this package as
 an approved Hermes catalog listing until the corresponding evidence exists.
