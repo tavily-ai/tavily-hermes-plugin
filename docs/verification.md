@@ -15,6 +15,12 @@ interpolation, missing credentials under multiplexing, and redirect handling.
 Admission returns `safe`, with no warnings or skipped components. The suite
 also passes in a clean environment containing only `requirements-dev.txt`.
 
+[GitHub Actions run 39614622032](https://github.com/tavily-ai/tavily-hermes-plugin/actions/runs/39614622032)
+passed all six jobs at package commit
+`4eb9700c9ab07f8af1b6125efaec7cf55e85cee0`: Linux, macOS, and Windows,
+each against the stable and development Hermes revisions above. Each job ran
+the same eight integration checks. Check the PR's latest run before release.
+
 An independent review found no package correctness/security blocker. Its
 research read-inactivity caveat is documented in the README.
 
@@ -46,8 +52,6 @@ that header in `get_client_name()` and `build_request_headers()`.
 - Stored attribution in Tavily's production analytics was not queried.
   Client-side header capture plus source inspection does not prove ingestion.
 - Long `pro` research spanning the HTTP read-inactivity deadline was not tested.
-- CI defines Linux, macOS, and Windows jobs; local results prove macOS only.
-  Review the actual workflow results for the final pushed commit.
 - Full direct-API parameter coverage requires a shared MCP update; see
   [capability coverage](capability-coverage.md).
 
