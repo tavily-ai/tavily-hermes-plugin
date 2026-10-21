@@ -36,6 +36,11 @@ minimums. Every executable example is an MCP argument object; no Tavily CLI or
 SDK client programs remain. The rewritten Best Practices guides document the
 same hosted interface, not direct API application development.
 
+The exact `hermes plugins validate . --install-deps --json` command passed
+with `ok: true`, security verdict `safe`, no warnings, and `host_ready: true`.
+Independent review found no remaining concrete correctness/security issue
+after correcting the README's native-only connection-test instructions.
+
 ## Existing authentication and transport evidence
 
 The MCP connection and authentication examples are unchanged from the
@@ -49,24 +54,31 @@ Crawl run returned content.
 
 ## Actual CLI acceptance test
 
-Package commit `a2066f070625e61ef3d6fad1dd78b1c99d2a9038` was installed from
+Package commit `53a4b3429eb8c51f20435c2bd2cd14565471632d` was installed from
 GitHub into the dedicated `tavily-plugin-test` profile with `--force --no-enable`,
-then enabled through the actual Hermes CLI. Installation and enablement passed.
+and confirmed enabled through the actual Hermes CLI. Installation and the
+earlier initial enablement passed; replacement preserved the enabled selection.
 The native OAuth connection reused the user's completed login, and
 `hermes mcp test tavily` discovered all five hosted tools without browser consent.
 
 A fresh CLI conversation using `mcp-tavily,skills`, `--query-file`, and
 `--format stream-json` listed all six qualified Tavily skills plus the separate
-core `hermes-agent` skill. It loaded the Search and Extract skills, discovered
-their live schemas, and made exactly one Search followed by one Extract on the
+core `hermes-agent` skill. It loaded the rewritten Best Practices skill and its
+new `references/mcp.md` and `references/workflows.md` guides, discovered the
+Search/Extract schemas, and made exactly one Search followed by one Extract on the
 returned official URL. Both returned usable payloads, Extract had no failed
 URLs, and the process exited 0 with a cited answer. Assertions inspected the
 actual persisted tool results, rather than accepting the model's completion
-claim or HTTP status alone.
+claim or HTTP status alone. The loaded skill and guides matched the installed
+candidate's full file contents.
 
-- Search request: `189a7ba2-ae4c-4ae6-9071-0836b8a11349`.
-- Extract request: `facb1cdb-81ba-47f6-ac03-af241e2d5025`.
-- Source: `https://docs.tavily.com/changelog`.
+- Search request: `4bf4ae62-4da1-4f98-914b-5e5ad37654af`.
+- Extract request: `414f74f3-6197-4f96-9da4-ecf7f89d9d4b`.
+- Source: `https://www.iana.org/domains/reserved`.
+
+An earlier CLI test at `a2066f070625e61ef3d6fad1dd78b1c99d2a9038` also
+loaded the Search/Extract skills and completed one request to each. That test
+preceded the Best Practices rewrite; the test above covers the final content.
 
 A separate live discovery observation checked outgoing requests against the
 stored OAuth token and exact attribution header. It made no paid tool calls;
