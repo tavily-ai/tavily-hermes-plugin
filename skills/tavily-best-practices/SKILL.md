@@ -6,9 +6,8 @@ author: Mani Srinivasan (@manisrinivasan2k1), Hermes adaptation; Tavily, origina
 license: MIT
 compatibility: Requires the Tavily MCP connection supplied by this Hermes plugin.
 metadata:
-  source: https://github.com/tavily-ai/tavily-grok-plugin/tree/0cfd0c2be2df4a2a90c683abaadaf36ef7f2f59d/skills/tavily-best-practices
-  grok_source: https://github.com/tavily-ai/tavily-grok-plugin/tree/0cfd0c2be2df4a2a90c683abaadaf36ef7f2f59d/skills/tavily-best-practices
-  grok_commit: 0cfd0c2be2df4a2a90c683abaadaf36ef7f2f59d
+  source: https://github.com/tavily-ai/skills/tree/778122e5f9c680f541eeceda5a5b36405eb7980c/skills/tavily-best-practices
+  source_commit: 778122e5f9c680f541eeceda5a5b36405eb7980c
 ---
 
 # Tavily Best Practices Skill

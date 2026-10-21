@@ -19,10 +19,8 @@ from tools.mcp_tool_errors import _make_redirect_header_stripper
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_SKILLS = {
-    "academic-scientific-research", "investment-research-briefs",
-    "product-competitor-intelligence", "sales-account-intelligence",
-    "tavily-best-practices", "tavily-web", "threat-intelligence-enrichment",
-    "vendor-risk-kyc-screening",
+    "tavily-search", "tavily-extract", "tavily-map", "tavily-crawl",
+    "tavily-research", "tavily-best-practices",
 }
 
 
@@ -84,6 +82,26 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(positions, sorted(positions))
             for target in re.findall(r"\]\(((?:references|templates)/[^)]+)\)", body):
                 self.assertTrue((skill.root / target).is_file(), target)
+
+    def test_operational_examples_match_the_advertised_mcp_contract(self):
+        schemas = json.loads((ROOT / "tests" / "fixtures" / "mcp-schemas.json").read_text())
+        for skill in self.package.skills:
+            if skill.name == "tavily-best-practices":
+                continue
+            schema = schemas["mcp__tavily__" + skill.name.replace("-", "_")]["parameters"]
+            body = skill.skill_md.read_text(encoding="utf-8")
+            examples = re.findall(r"```json\n(.*?)\n```", body, re.DOTALL)
+            self.assertTrue(examples, skill.name)
+            for raw in examples:
+                args = json.loads(raw)
+                self.assertLessEqual(set(args), set(schema["properties"]), skill.name)
+                self.assertLessEqual(set(schema.get("required", [])), set(args), skill.name)
+                for key, value in args.items():
+                    field = schema["properties"][key]
+                    if "enum" in field:
+                        self.assertIn(value, field["enum"], (skill.name, key))
+                    if "minimum" in field:
+                        self.assertGreaterEqual(value, field["minimum"], (skill.name, key))
 
     def _load_connection_example(self, filename, secrets):
         from hermes_cli.plugins import PluginManager

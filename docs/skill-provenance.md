@@ -1,48 +1,62 @@
 # Skill provenance
 
-This package reuses all eight skills from
-[`tavily-ai/tavily-grok-plugin` at `0cfd0c2`](https://github.com/tavily-ai/tavily-grok-plugin/tree/0cfd0c2be2df4a2a90c683abaadaf36ef7f2f59d/skills).
-The full source commit is `0cfd0c2be2df4a2a90c683abaadaf36ef7f2f59d`.
-Tavily's MIT license and original source metadata are retained. Frontmatter
-credits the Hermes adaptation separately from the original Tavily skills.
+The source is [`tavily-ai/skills` at `778122e`](https://github.com/tavily-ai/skills/tree/778122e5f9c680f541eeceda5a5b36405eb7980c/skills).
+The full source commit is `778122e5f9c680f541eeceda5a5b36405eb7980c`.
+Tavily's MIT license and source attribution are retained. Skill frontmatter
+credits the Hermes adaptation separately from Tavily's original material.
 
-| Source skill | Hermes skill |
-| --- | --- |
-| `tavily-web` | Same name and web-research workflow. |
-| `tavily-best-practices` | Same name, SDK/API examples, and six reference guides. |
-| `academic-scientific-research` | Same name, workflow, and evidence-brief template. |
-| `investment-research-briefs` | Same name, workflow, and investment-brief template. |
-| `product-competitor-intelligence` | Same name, workflow, and product-comparison template. |
-| `sales-account-intelligence` | Same name, workflow, and account-brief template. |
-| `threat-intelligence-enrichment` | Same name, workflow, and threat-brief template. |
-| `vendor-risk-kyc-screening` | Same name, workflow, and risk-brief template. |
+## Included skills
 
-## Hermes adaptations
+- `tavily-search`
+- `tavily-extract`
+- `tavily-map`
+- `tavily-crawl`
+- `tavily-research`
+- `tavily-best-practices`
 
-- Descriptions are at most 60 characters, end with a period, and describe the
-  capability. The original longer descriptions remain in `When to Use`.
-- Existing content is arranged into the required `When to Use`, `Prerequisites`,
-  `How to Run`, `Quick Reference`, `Procedure`, `Pitfalls`, and `Verification`
-  sections. Research budgets and source-selection guidance are preserved.
-- Tool references use Hermes's `mcp__tavily__tavily_*` names. The web skill points
-  to Hermes's OAuth login and profile configuration.
-- The six specialized skills' original Markdown output templates are moved
-  unchanged into `templates/brief.md`, linked from their skills, and readable
-  through Hermes's `skill_view` tool.
-- Added prerequisites and verification checks require the current MCP schema,
-  source citations, bounded scope, and normal Hermes approval handling. Failed
-  attempts count against request limits; rate/credit-limit errors stop execution
-  instead of triggering automatic retries.
-- The developer skill explicitly distinguishes application SDK/API credentials
-  and parameters from the Hermes plugin's MCP OAuth connection and live schema.
+This is the user-selected MCP bundle. `tavily-cli` and
+`tavily-dynamic-search` are excluded because their setup and disk-filtering
+workflows depend on the Tavily CLI. No use-case skills are bundled.
 
-Four developer reference files are copied byte for byte: `sdk.md`, `extract.md`,
-`crawl.md`, and `research.md`. In `search.md`, two trailing spaces are removed;
-its text and examples are unchanged. In `integrations.md`, the Hermes
-admission scanner rejected illustrative key assignments and `os.environ`
-access. Those credential examples now direct developers to configure credentials
-externally and use SDK credential defaults. The integration workflows and
-remaining examples are preserved.
+## MCP adaptations
 
-The package contains no executable skill scripts. Reference code is developer
-documentation; it is not executed during plugin installation or discovery.
+The operational skills preserve their source tasks: discover sources, extract
+selected pages, map before broad collection, bound crawls, and reserve Research
+for multi-source synthesis. Source selection, evidence verification, extraction
+failure checks, and research model selection are retained.
+
+CLI invocations are replaced with examples for Hermes's
+`mcp__tavily__tavily_*` tools. Command flags become MCP arguments where the
+advertised schema supports them: for example, `--depth` becomes
+`search_depth`, hyphenated names become underscored argument names, domain/path
+lists become JSON arrays, and external-link selection becomes a boolean.
+The current hosted schemas were read on 2026-10-21; the examples are checked
+against that interface in the package tests.
+
+The source CLI's installation, keyless login, automatic skill refresh, output
+files, and separate Research polling commands are not presented as MCP
+features. OAuth and API-key instructions use Hermes's profile-aware connection
+configuration. No Tavily CLI process or separate CLI authentication is required.
+Only inputs in the live MCP schema are documented as operational controls.
+
+Descriptions are shortened to at most 60 characters and end with a period.
+Content follows Hermes's required section order. Qualified skill names are
+discovered using `skills_list`; `skill_view` loads skills and references.
+Rate/credit errors stop the workflow; failed attempts count against the user's
+request budget. These are agent instructions rather than runtime quota guards.
+
+## Developer references
+
+`tavily-best-practices` keeps the official SDK/API material and explicitly
+distinguishes application credentials and API parameters from the plugin's
+MCP OAuth connection and advertised tool inputs.
+
+Four guides are byte-identical to the selected source: `sdk.md`, `extract.md`,
+`crawl.md`, and `research.md`. `search.md` has only two trailing spaces removed.
+In `integrations.md`, the previously approved changes replace credential
+assignments and `os.environ` examples with external application configuration
+and SDK credential defaults, so Hermes's admission scanner passes.
+
+SDK install commands and examples are developer documentation, executed only
+within requested development work and Hermes approvals. The plugin has no
+executable runtime or skill scripts.

@@ -2,7 +2,7 @@
 
 Search the web, extract pages, discover URLs, crawl websites, and run research
 through [Tavily's hosted MCP server](https://docs.tavily.com/documentation/mcp).
-Includes Tavily's eight skills from the Grok plugin, adapted for Hermes.
+Includes six skills adapted from Tavily's official skills repository for Hermes MCP.
 Requires **Hermes Agent 0.22.2 or later**.
 No local Tavily server, Node.js, or additional runtime dependencies are needed.
 
@@ -91,7 +91,7 @@ hermes plugins enable tavily
 ```
 
 If `plugins list` shows a different installed key, use that key for enable/disable.
-Start a fresh session. Ask Hermes to find and load `tavily-web` with `skills_list`
+Start a fresh session. Ask Hermes to find and load `tavily-search` with `skills_list`
 and `skill_view`, then try:
 
 > Search Tavily's official documentation for search-depth options and cite the sources.
@@ -111,20 +111,19 @@ Hermes qualifies skill names to avoid collisions. Discover the full name with
 
 | Skill | Use |
 | --- | --- |
-| [tavily-web](skills/tavily-web/SKILL.md) | Coordinate search, extraction, mapping, crawling, and research. |
+| [tavily-search](skills/tavily-search/SKILL.md) | Find web sources with supported domain and date controls. |
+| [tavily-extract](skills/tavily-extract/SKILL.md) | Read clean content from selected URLs. |
+| [tavily-map](skills/tavily-map/SKILL.md) | Discover URLs before choosing pages to read. |
+| [tavily-crawl](skills/tavily-crawl/SKILL.md) | Collect content from a bounded website section. |
+| [tavily-research](skills/tavily-research/SKILL.md) | Produce multi-source research with citations. |
 | [tavily-best-practices](skills/tavily-best-practices/SKILL.md) | Build integrations with Tavily SDKs and APIs. |
-| [academic-scientific-research](skills/academic-scientific-research/SKILL.md) | Find, screen, and synthesize scholarly evidence. |
-| [investment-research-briefs](skills/investment-research-briefs/SKILL.md) | Produce investment briefs with risks, catalysts, and sources. |
-| [product-competitor-intelligence](skills/product-competitor-intelligence/SKILL.md) | Compare products, pricing, features, and competitors. |
-| [sales-account-intelligence](skills/sales-account-intelligence/SKILL.md) | Research accounts, buyers, and sales context. |
-| [threat-intelligence-enrichment](skills/threat-intelligence-enrichment/SKILL.md) | Investigate vulnerabilities, threats, and mitigations. |
-| [vendor-risk-kyc-screening](skills/vendor-risk-kyc-screening/SKILL.md) | Collect vendor-risk and KYC evidence. |
 
-The skill workflows, source-selection guidance, research budgets, and output
-templates come from the [Tavily Grok plugin](https://github.com/tavily-ai/tavily-grok-plugin).
+The source is [tavily-ai/skills](https://github.com/tavily-ai/skills). Its five
+operational skills are adapted to Hermes's MCP tool calls and authentication.
+The CLI setup and CLI-based Dynamic Search skills are outside this MCP bundle.
 See [skill provenance](docs/skill-provenance.md) for the exact source commit and
-Hermes adaptations. Load skills and their references or templates with
-`skill_view` using the qualified names returned by `skills_list`.
+adaptations. Discover qualified skill names with `skills_list`, then load them
+and their references with `skill_view`.
 
 The developer skill's SDK/API references document application development.
 Their examples do not add parameters to the MCP server. SDK installation
@@ -157,7 +156,7 @@ investigate the existing task before submitting another paid request.
   owns configuration, credential storage, token refresh, and the MCP runtime.
 - The package runs no local tool processes, background workers, credential-file
   readers, self-updaters, or separate analytics collectors.
-- Web content is untrusted evidence. The skill preserves task scope and rejects
+- Web content is untrusted evidence. The skills preserve task scope and rejects
   instructions embedded in retrieved pages.
 
 ## Troubleshooting
