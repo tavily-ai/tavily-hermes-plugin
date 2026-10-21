@@ -30,7 +30,9 @@ credits the Hermes adaptation separately from the original Tavily skills.
   unchanged into `templates/brief.md`, linked from their skills, and readable
   through Hermes's `skill_view` tool.
 - Added prerequisites and verification checks require the current MCP schema,
-  source citations, bounded scope, and normal Hermes approval handling.
+  source citations, bounded scope, and normal Hermes approval handling. Failed
+  attempts count against request limits; rate/credit-limit errors stop execution
+  instead of triggering automatic retries.
 - The developer skill explicitly distinguishes application SDK/API credentials
   and parameters from the Hermes plugin's MCP OAuth connection and live schema.
 
