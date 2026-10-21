@@ -2,7 +2,8 @@
 
 Search the web, extract pages, discover URLs, crawl websites, and run research
 through [Tavily's hosted MCP server](https://docs.tavily.com/documentation/mcp).
-Includes a Tavily research skill. Requires **Hermes Agent 0.22.2 or later**.
+Includes Tavily's eight skills from the Grok plugin, adapted for Hermes.
+Requires **Hermes Agent 0.22.2 or later**.
 No local Tavily server, Node.js, or additional runtime dependencies are needed.
 
 ## Install and connect
@@ -108,10 +109,27 @@ Hermes qualifies skill names to avoid collisions. Discover the full name with
 | `mcp__tavily__tavily_crawl` | Collect content from a bounded website section |
 | `mcp__tavily__tavily_research` | Produce a multi-source research report |
 
-The [tavily-web skill](skills/tavily-web/SKILL.md) covers tool selection, source
-verification, bounded crawls, citations, partial results, and errors. It adapts
-the workflow approach from the [Tavily Grok plugin](https://github.com/tavily-ai/tavily-grok-plugin)
-to Hermes's tools and skill format.
+| Skill | Use |
+| --- | --- |
+| [tavily-web](skills/tavily-web/SKILL.md) | Coordinate search, extraction, mapping, crawling, and research. |
+| [tavily-best-practices](skills/tavily-best-practices/SKILL.md) | Build integrations with Tavily SDKs and APIs. |
+| [academic-scientific-research](skills/academic-scientific-research/SKILL.md) | Find, screen, and synthesize scholarly evidence. |
+| [investment-research-briefs](skills/investment-research-briefs/SKILL.md) | Produce investment briefs with risks, catalysts, and sources. |
+| [product-competitor-intelligence](skills/product-competitor-intelligence/SKILL.md) | Compare products, pricing, features, and competitors. |
+| [sales-account-intelligence](skills/sales-account-intelligence/SKILL.md) | Research accounts, buyers, and sales context. |
+| [threat-intelligence-enrichment](skills/threat-intelligence-enrichment/SKILL.md) | Investigate vulnerabilities, threats, and mitigations. |
+| [vendor-risk-kyc-screening](skills/vendor-risk-kyc-screening/SKILL.md) | Collect vendor-risk and KYC evidence. |
+
+The skill workflows, source-selection guidance, research budgets, and output
+templates come from the [Tavily Grok plugin](https://github.com/tavily-ai/tavily-grok-plugin).
+See [skill provenance](docs/skill-provenance.md) for the exact source commit and
+Hermes adaptations. Load skills and their references or templates with
+`skill_view` using the qualified names returned by `skills_list`.
+
+The developer skill's SDK/API references document application development.
+Their examples do not add parameters to the MCP server. SDK installation
+commands and example programs run only as part of requested development work,
+subject to Hermes approvals; the plugin does not execute them on installation.
 
 The plugin exposes the tools and parameters advertised by Tavily's hosted MCP
 server. Availability may differ from Tavily's direct API. See

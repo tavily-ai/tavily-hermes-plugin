@@ -1,7 +1,7 @@
 # Tavily MCP capabilities
 
-This plugin connects Hermes to Tavily's hosted MCP server and includes a skill
-for web research with source citations.
+This plugin connects Hermes to Tavily's hosted MCP server and includes the
+eight Tavily skills listed in the [README](../README.md#tools-and-skills).
 
 | Tool | Capability |
 | --- | --- |

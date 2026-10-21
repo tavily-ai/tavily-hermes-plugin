@@ -1,5 +1,6 @@
 """Integration contracts for the shipped package, using Hermes's real loader."""
 
+import json
 import os
 from pathlib import Path
 import re
@@ -17,6 +18,12 @@ from tools.mcp_tool_config import _interpolate_env_vars, _load_mcp_config, _requ
 from tools.mcp_tool_errors import _make_redirect_header_stripper
 
 ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_SKILLS = {
+    "academic-scientific-research", "investment-research-briefs",
+    "product-competitor-intelligence", "sales-account-intelligence",
+    "tavily-best-practices", "tavily-web", "threat-intelligence-enrichment",
+    "vendor-risk-kyc-screening",
+}
 
 
 class PackageTests(unittest.TestCase):
@@ -31,7 +38,7 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(report.warnings, [])
         self.assertEqual(self.package.diagnostics, ())
         self.assertEqual(set(self.package.mcp_servers), {"tavily"})
-        self.assertEqual([s.name for s in self.package.skills], ["tavily-web"])
+        self.assertEqual({s.name for s in self.package.skills}, EXPECTED_SKILLS)
 
     def test_package_keeps_credentials_out_of_the_url_and_preserves_attribution(self):
         server = self.package.mcp_servers["tavily"]
@@ -75,7 +82,7 @@ class PackageTests(unittest.TestCase):
             body = skill.skill_md.read_text(encoding="utf-8")
             positions = [body.index(f"## {heading}") for heading in required]
             self.assertEqual(positions, sorted(positions))
-            for target in re.findall(r"\]\((references/[^)]+)\)", body):
+            for target in re.findall(r"\]\(((?:references|templates)/[^)]+)\)", body):
                 self.assertTrue((skill.root / target).is_file(), target)
 
     def _load_connection_example(self, filename, secrets):
@@ -100,7 +107,7 @@ class PackageTests(unittest.TestCase):
                 with patch("hermes_cli.plugins.get_plugin_manager", return_value=manager):
                     servers = _load_mcp_config()
                 self.assertEqual(set(servers), {"tavily"})
-                self.assertEqual(len(manager.list_plugin_skill_metadata()), 1)
+                self.assertEqual(len(manager.list_plugin_skill_metadata()), len(EXPECTED_SKILLS))
                 return _require_rendered_remote("tavily", servers["tavily"])
             finally:
                 manager.unload()
@@ -142,12 +149,24 @@ class PackageTests(unittest.TestCase):
                     try:
                         manager.discover_and_load()
                         self.assertEqual(bool(manager.get_portable_mcp_servers()), enabled)
-                        self.assertEqual(len(manager.list_plugin_skill_metadata()), int(enabled))
+                        self.assertEqual(len(manager.list_plugin_skill_metadata()), len(EXPECTED_SKILLS) if enabled else 0)
                         if enabled:
                             row = next(p for p in manager.list_plugins() if p["name"] == "tavily")
                             self.assertIsNone(row["error"])
-                            skill = manager.list_plugin_skill_metadata()[0]
-                            self.assertTrue(manager.find_plugin_skill(skill["name"]).is_file())
+                            from tools.skills_tool import skill_view
+
+                            with patch("hermes_cli.plugins.get_plugin_manager", return_value=manager):
+                                for skill in manager.list_plugin_skill_metadata():
+                                    skill_md = manager.find_plugin_skill(skill["name"])
+                                    self.assertTrue(skill_md.is_file())
+                                    viewed = json.loads(skill_view(skill["name"]))
+                                    self.assertTrue(viewed["success"], viewed)
+                                    for directory in ("references", "templates"):
+                                        for path in (skill_md.parent / directory).rglob("*.md"):
+                                            relative = path.relative_to(skill_md.parent).as_posix()
+                                            resource = json.loads(skill_view(skill["name"], file_path=relative))
+                                            self.assertTrue(resource["success"], resource)
+                                            self.assertIn(path.read_text(encoding="utf-8").strip(), resource["content"])
                     finally:
                         manager.unload()
 

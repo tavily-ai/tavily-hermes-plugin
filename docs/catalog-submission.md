@@ -3,6 +3,10 @@
 A Tavily owner or major contributor submits a PR to `NousResearch/hermes-agent`.
 Nous maintainers review and merge the entry; there is no self-service publishing.
 
+Submission is paused while the repository remains internal. The submission
+guide requires a public repository that anyone can clone; package validation
+does not satisfy that publication prerequisite.
+
 1. Run package tests and `hermes plugins validate /path/to/plugin --install-deps`.
 2. Push the reviewed package commit and resolve its full 40-character SHA.
 3. In a separate Hermes branch, add `plugin-catalog/tavily.yaml` using the
@@ -17,7 +21,7 @@ Nous maintainers review and merge the entry; there is no self-service publishing
 name: tavily
 repo: https://github.com/tavily-ai/tavily-hermes-plugin
 # sha: insert the reviewed, pushed 40-character commit SHA
-description: Web search, extraction, website mapping and crawling, and research through Tavily MCP, with a web research skill.
+description: Web search, extraction, mapping, crawling, and research through Tavily MCP, with eight Tavily skills.
 maintainer: tavily-ai
 tier: community
 category: web
@@ -41,7 +45,7 @@ remote MCP tool names in the native `provides_tools` list.
 
 ## Disclosures for the PR
 
-- Tavily-maintained portable package inspired by `tavily-ai/tavily-grok-plugin`;
+- Tavily-maintained portable package reusing the eight skills from `tavily-ai/tavily-grok-plugin`;
   no fork of a Hermes bundled provider.
 - HTTPS requests to `mcp.tavily.com`; Tavily processes queries, URLs, and research
   instructions, using account credits.
@@ -51,7 +55,10 @@ remote MCP tool names in the native `provides_tools` list.
   README and examples explicitly separate the two methods.
 - No runtime dependencies, local executables, shell commands, background
   workers, credential-file reads, core overrides, or self-updater.
-- Five remotely discovered tools and one bundled skill; no Desktop renderer code.
+- Five remotely discovered tools and eight bundled skills; no Desktop renderer code.
+- The developer skill contains SDK/API installation commands and application
+  examples. They are documentation used during requested development work,
+  subject to Hermes approvals, and are not executed by package installation.
 - Research may take minutes; stable Hermes needs the documented native timeout
   override for longer calls. The hosted service updates separately from this pin.
 - Link capability coverage and identify the live calls, auth modes, and

@@ -19,8 +19,18 @@ interpolation, missing credentials under multiplexing, and redirect handling.
 The two connection-example checks also verify that native OAuth replaces the
 packaged API-key configuration without inheriting its Authorization header or
 requiring a key, and that the API-key alternative uses the active profile's key.
+After restoring the eight Grok skills, the suite checks their complete names,
+authoring metadata, and enabled/disabled discovery. It also loads every skill
+and all six reference guides and six brief templates through Hermes's actual
+`skill_view` function. All ten checks pass against the three checkouts above.
 Admission returns `safe`, with no warnings or skipped components. The suite
 also passes in a clean environment containing only `requirements-dev.txt`.
+
+The restored bundle also passed `hermes plugins validate . --install-deps
+--json`, including successful dependency preparation. The local private package
+registry had an expired login, so the successful run used a process-local
+`UV_INDEX_URL=https://pypi.org/simple` override. The scanner verdict was `safe`,
+with no warnings. No scanner rule or test assertion was disabled.
 
 [GitHub Actions run 39625518923](https://github.com/tavily-ai/tavily-hermes-plugin/actions/runs/39625518923)
 passed all six jobs at package commit

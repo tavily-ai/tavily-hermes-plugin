@@ -4,5 +4,6 @@
 
 - Connect Hermes to Tavily's hosted search, extract, map, crawl, and research tools.
 - Send `hermes plugin` attribution on MCP requests.
-- Bundle a research skill with citations, bounded collection, and error guidance.
+- Bundle all eight Tavily Grok skills with Hermes tool references, original
+  research workflows, six brief templates, and six SDK/API guides.
 - Document Hermes-managed credentials, research deadlines, and MCP/API gaps.
