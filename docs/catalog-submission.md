@@ -29,13 +29,14 @@ capabilities:
   provides_tools: []
   provides_hooks: []
   provides_middleware: []
-  requires_env: []
+  requires_env: [TAVILY_API_KEY]
 ```
 
-Empty capabilities follow Hermes's portable-MCP catalog convention: there are
-no native Python tools, hooks, or middleware. Disclose the remotely discovered
-tools and the default `TAVILY_API_KEY` requirement explicitly. Do not put remote
-MCP tool names in the native `provides_tools` list.
+The tool, hook, and middleware lists are empty because the package does not
+register native Python capabilities. The default MCP connection requires
+`TAVILY_API_KEY`, so declare it in `requires_env`. Disclose the remotely
+discovered tools and the optional native OAuth override explicitly. Do not put
+remote MCP tool names in the native `provides_tools` list.
 
 ## Disclosures for the PR
 
