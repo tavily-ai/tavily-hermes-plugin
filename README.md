@@ -3,7 +3,7 @@
 Search the web, extract pages, discover URLs, crawl websites, and run research
 through [Tavily's hosted MCP server](https://docs.tavily.com/documentation/mcp).
 Includes six skills adapted from Tavily's official skills repository for Hermes MCP.
-Requires **Hermes Agent 0.22.2 or later**.
+Requires **Hermes Agent 0.22.2 or later**, with its MCP support installed.
 No local Tavily server, Node.js, or additional runtime dependencies are needed.
 
 ## Install and connect
@@ -91,6 +91,12 @@ hermes plugins enable tavily
 ```
 
 If `plugins list` shows a different installed key, use that key for enable/disable.
+If you configured a native `mcp_servers.tavily` entry, run
+`hermes mcp test tavily`; it should discover five Tavily tools. Hermes 0.22.2's
+connection-test command does not inspect the packaged API-key fallback, so
+verify that fallback in a fresh chat instead. If Hermes reports that
+the MCP SDK or HTTP transport is unavailable, install the MCP optional feature
+using your Hermes version's installation instructions before continuing.
 Start a fresh session. Ask Hermes to find and load `tavily-search` with `skills_list`
 and `skill_view`, then try:
 
@@ -116,19 +122,19 @@ Hermes qualifies skill names to avoid collisions. Discover the full name with
 | [tavily-map](skills/tavily-map/SKILL.md) | Discover URLs before choosing pages to read. |
 | [tavily-crawl](skills/tavily-crawl/SKILL.md) | Collect content from a bounded website section. |
 | [tavily-research](skills/tavily-research/SKILL.md) | Produce multi-source research with citations. |
-| [tavily-best-practices](skills/tavily-best-practices/SKILL.md) | Build integrations with Tavily SDKs and APIs. |
+| [tavily-best-practices](skills/tavily-best-practices/SKILL.md) | Plan reliable MCP retrieval and verification workflows. |
 
-The source is [tavily-ai/skills](https://github.com/tavily-ai/skills). Its five
-operational skills are adapted to Hermes's MCP tool calls and authentication.
+The source is [tavily-ai/skills](https://github.com/tavily-ai/skills). All six
+skills are adapted to Hermes's MCP tool calls and authentication. Best Practices
+includes six MCP guides covering retrieval, connection handling, and workflows.
 The CLI setup and CLI-based Dynamic Search skills are outside this MCP bundle.
 See [skill provenance](docs/skill-provenance.md) for the exact source commit and
 adaptations. Discover qualified skill names with `skills_list`, then load them
 and their references with `skill_view`.
 
-The developer skill's SDK/API references document application development.
-Their examples do not add parameters to the MCP server. SDK installation
-commands and example programs run only as part of requested development work,
-subject to Hermes approvals; the plugin does not execute them on installation.
+No skill requires a separate Tavily client, CLI login, or SDK installation.
+Examples use only the connected MCP interface; they do not introduce direct API
+parameters or a separate application authentication flow.
 
 The plugin exposes the tools and parameters advertised by Tavily's hosted MCP
 server. Availability may differ from Tavily's direct API. See

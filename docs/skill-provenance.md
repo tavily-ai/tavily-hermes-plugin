@@ -45,18 +45,21 @@ discovered using `skills_list`; `skill_view` loads skills and references.
 Rate/credit errors stop the workflow; failed attempts count against the user's
 request budget. These are agent instructions rather than runtime quota guards.
 
-## Developer references
+## Best Practices references
 
-`tavily-best-practices` keeps the official SDK/API material and explicitly
-distinguishes application credentials and API parameters from the plugin's
-MCP OAuth connection and advertised tool inputs.
+`tavily-best-practices` adapts the source's retrieval planning, query design,
+source filtering, relevance checks, Map-before-Crawl guidance, Research model
+selection, and evidence verification to the same MCP connection as the other
+five skills. All examples use advertised MCP arguments.
 
-Four guides are byte-identical to the selected source: `sdk.md`, `extract.md`,
-`crawl.md`, and `research.md`. `search.md` has only two trailing spaces removed.
-In `integrations.md`, the previously approved changes replace credential
-assignments and `os.environ` examples with external application configuration
-and SDK credential defaults, so Hermes's admission scanner passes.
+The Search, Extract, Map/Crawl, and Research guides are rewritten for MCP.
+The source's `sdk.md` and `integrations.md` are replaced by `mcp.md` and
+`workflows.md`, documenting Hermes-managed authentication, live tool schemas,
+bounded retrieval composition, and failure handling. Direct API/SDK examples,
+client installation, external framework setup, and separate polling flows are
+outside the selected MCP-only bundle. These guides are adaptations, not
+byte-identical copies or a claim of full direct API capability coverage.
 
-SDK install commands and examples are developer documentation, executed only
-within requested development work and Hermes approvals. The plugin has no
-executable runtime or skill scripts.
+No skill installs or invokes the Tavily CLI or an SDK. There are no credential
+assignments or token-store readers in the bundle. The plugin has no executable
+runtime or skill scripts; Hermes manages tool execution and approvals.

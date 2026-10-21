@@ -1,249 +1,47 @@
-# Extract API Reference
+# Extract through MCP
 
-## Table of Contents
+Use `mcp__tavily__tavily_extract` when the relevant URLs are already known or
+have been selected from Search or Map. Select a small relevant set before
+fetching page bodies, and verify each hostname against any source restriction.
 
-- [Extraction Approaches](#extraction-approaches)
-- [Key Parameters](#key-parameters)
-- [Query and Chunks](#query-and-chunks)
-- [Extract Depth](#extract-depth)
-- [Advanced Filtering Strategies](#advanced-filtering-strategies)
-- [Response Fields](#response-fields)
-- [Summary](#summary)
+## Focused extraction
 
----
+Call `mcp__tavily__tavily_extract` with:
 
-## Extraction Approaches
-
-### Search with include_raw_content
-
-Get search results and content in one call:
-
-```python
-response = client.search(
-    query="AI healthcare applications",
-    include_raw_content=True,
-    max_results=5
-)
+```json
+{
+  "urls": ["https://docs.tavily.com/documentation/mcp"],
+  "query": "OAuth authentication",
+  "extract_depth": "basic",
+  "format": "markdown"
+}
 ```
 
-**When to use:**
-- Quick prototyping
-- Simple queries where search results are likely relevant
-- Single API call convenience
+`urls` is an array. Use `query` to rerank content chunks by relevance.
+`extract_depth` is `basic` or `advanced`; the latter is useful for tables,
+embedded content, or pages where basic extraction is insufficient, and can
+increase latency. `format` is `markdown` or `text`. Image and favicon options
+should be enabled only when needed and supported by the connected schema.
 
-### Direct Extract API (Recommended)
+Do not add chunk-count or timeout arguments that the live tool does not expose.
+Query relevance does not guarantee a specific response length. Narrow the URL
+set when output would be too large, rather than promising file-based context
+isolation or silently truncating away evidence.
 
-Two-step pattern for more control:
+## Partial failures
 
-```python
-# Step 1: Search
-search_results = client.search(
-    query="Python async best practices",
-    max_results=10
-)
+Inspect both successful results and `failed_results` when present. A successful
+HTTP status does not establish that every URL returned useful content. Identify
+which requested pages succeeded, failed, or returned empty content before synthesis.
 
-# Step 2: Filter by relevance score
-relevant_urls = [
-    r["url"] for r in search_results["results"]
-    if r["score"] > 0.5
-]
+Do not retry rate/credit errors. For an ordinary page-specific extraction
+failure, consider a single advanced extraction only if it fits the remaining
+user budget and addresses the reported failure. Count both attempts and retain
+the original failure. Never keep increasing depth without a reason.
 
-# Step 3: Extract with targeting
-extracted = client.extract(
-    urls=relevant_urls[:20],
-    query="async patterns and concurrency",  # Reranks chunks
-    chunks_per_source=3  # Prevents context explosion
-)
+## Evidence quality
 
-for item in extracted["results"]:
-    print(f"URL: {item['url']}")
-    print(f"Content: {item['raw_content'][:500]}...")
-```
-
-**When to use:**
-- You want control over which URLs to extract
-- You need to filter/curate URLs before extraction
-- You want targeted extraction with query and chunks_per_source
-
----
-
-## Key Parameters
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `urls` | string/array | Required | Single URL or list (max 20) |
-| `extract_depth` | enum | `"basic"` | `"basic"` or `"advanced"` (for complex/JS pages) |
-| `query` | string | null | Reranks chunks by relevance to this query |
-| `chunks_per_source` | integer | 3 | Chunks per source (1-5, max 500 chars each). Only with `query` |
-| `format` | enum | `"markdown"` | Output: `"markdown"` or `"text"` |
-| `include_images` | boolean | false | Include image URLs |
-| `include_favicon` | boolean | false | Include favicon URL |
-| `include_usage` | boolean | false | Include credit consumption data in response |
-| `timeout` | float | varies | Max wait time (1.0-60.0 seconds) |
-
----
-
-## Query and Chunks
-
-Use `query` and `chunks_per_source` to get only relevant content and prevent context window explosion:
-
-```python
-extracted = client.extract(
-    urls=[
-        "https://example.com/ml-healthcare",
-        "https://example.com/ai-diagnostics",
-        "https://example.com/medical-ai"
-    ],
-    query="AI diagnostic tools accuracy",
-    chunks_per_source=2  # 2 most relevant chunks per URL
-)
-```
-
-**When to use query:**
-- To extract only relevant portions of long documents
-- When you need focused content instead of full page extraction
-- For targeted information retrieval from specific URLs
-
-**Key benefits of chunks_per_source:**
-- Returns only relevant snippets (max 500 chars each) instead of full page
-- Chunks appear in `raw_content` as: `<chunk 1> [...] <chunk 2> [...] <chunk 3>`
-- Prevents context window from exploding in agentic use cases
-
-**Note:** `chunks_per_source` only works when `query` is provided.
-
----
-
-## Extract Depth
-
-| Depth | When to use |
-|-------|-------------|
-| `basic` (default) | Simple text extraction, faster |
-| `advanced` | Dynamic/JS-rendered pages, tables, structured data, embedded media |
-
-```python
-# For complex pages
-extracted = client.extract(
-    urls=["https://example.com/complex-page"],
-    extract_depth="advanced"
-)
-```
-
-**Fallback strategy:** If `basic` fails, retry with `advanced`:
-
-```python
-result = client.extract(urls=[url], extract_depth="basic")
-if url in [f["url"] for f in result.get("failed_results", [])]:
-    result = client.extract(urls=[url], extract_depth="advanced")
-```
-
-**Timeout tuning:** If latency isn't critical, set `timeout=60.0` for better success on slow pages.
-
----
-
-## Advanced Filtering Strategies
-
-Beyond query-based filtering, consider these approaches before extraction:
-
-| Strategy | When to use |
-|----------|-------------|
-| Score-based | Filter search results by relevance score |
-| Domain-based | Filter by trusted domains |
-| Re-ranking | Use dedicated re-ranking models for precision |
-| LLM-based | Let an LLM assess relevance before extraction |
-| Clustering | Group similar documents, extract from clusters |
-
-### Optimal Workflow
-
-1. **Search** to discover relevant URLs
-2. **Filter** by relevance score, domain, or content snippet
-3. **Re-rank** if needed using specialized models
-4. **Extract** from top-ranked sources with query and chunks_per_source
-5. **Validate** extracted content quality
-6. **Process** for your AI application
-
-### Example: Complete Pipeline
-
-```python
-import asyncio
-from tavily import AsyncTavilyClient
-
-client = AsyncTavilyClient()
-
-async def content_pipeline(topic):
-    # 1. Search with sub-queries for breadth
-    queries = [
-        f"{topic} overview",
-        f"{topic} best practices",
-        f"{topic} recent developments"
-    ]
-    responses = await asyncio.gather(
-        *(client.search(q, search_depth="advanced", max_results=10) for q in queries)
-    )
-
-    # 2. Filter and aggregate by score
-    urls = []
-    for response in responses:
-        urls.extend([
-            r['url'] for r in response['results']
-            if r['score'] > 0.5
-        ])
-
-    # 3. Deduplicate
-    urls = list(set(urls))[:20]
-
-    # 4. Extract with error handling
-    extracted = await asyncio.gather(
-        *(client.extract(urls=[url], query=topic, extract_depth="advanced")
-          for url in urls),
-        return_exceptions=True
-    )
-
-    # 5. Filter successful extractions
-    return [e for e in extracted if not isinstance(e, Exception)]
-
-asyncio.run(content_pipeline("machine learning in healthcare"))
-```
-
----
-
-## Response Fields
-
-**Top-level response:**
-
-| Field | Description |
-|-------|-------------|
-| `results` | Array of successfully extracted content |
-| `failed_results` | Array of URLs that failed extraction |
-| `response_time` | Time in seconds |
-| `request_id` | Unique identifier for support reference |
-| `usage` | Credit usage info (if `include_usage=True`) |
-
-**Each result object:**
-
-| Field | Description |
-|-------|-------------|
-| `url` | The URL extracted from |
-| `raw_content` | Full content, or top-ranked chunks joined by `[...]` when `query` provided |
-| `images` | Array of image URLs (if `include_images=true`) |
-| `favicon` | Favicon URL (if `include_favicon=true`) |
-
-**Each failed_results object:**
-
-| Field | Description |
-|-------|-------------|
-| `url` | The URL that failed |
-| `error` | Error message |
-
----
-
-## Summary
-
-1. **Use query and chunks_per_source** for targeted, focused extraction
-2. **Choose Extract API** when you need control over which URLs to extract from
-3. **Filter URLs** before extraction using scores, re-ranking, or domain trust
-4. **Choose appropriate extract_depth** based on content complexity
-5. **Process URLs concurrently** with async operations for better performance
-6. **Implement error handling** to manage failed extractions gracefully
-7. **Validate extracted content** before downstream processing
-
-For more details, see the [full API reference](https://docs.tavily.com/documentation/api-reference/endpoint/extract)
+Keep each page URL beside its content. Cite the original page for claims
+supported by extraction. If only a search snippet was available, label that
+limitation. For identity-sensitive facts, verify the exact organization, person,
+project, date, or version rather than relying on a similar page title.

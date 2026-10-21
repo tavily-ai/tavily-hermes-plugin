@@ -30,10 +30,11 @@ hosted MCP schemas captured on 2026-10-21. Schema discovery used the actual
 OAuth connection and made no paid tool calls. The snapshot is test data, not
 a runtime parameter allowlist; the connected server remains authoritative.
 
-Independent review found no remaining correctness/security issue in the
-adaptations or package tests. Four SDK/API guides match the selected source
-byte for byte; Search has only trailing-whitespace cleanup, and Integrations
-contains the previously approved credential-example adaptations.
+The example contract check covers all six skills and their reference guides,
+including tool names, required fields, argument types, enum values, and numeric
+minimums. Every executable example is an MCP argument object; no Tavily CLI or
+SDK client programs remain. The rewritten Best Practices guides document the
+same hosted interface, not direct API application development.
 
 ## Existing authentication and transport evidence
 
@@ -46,12 +47,49 @@ header. API-key Search, Extract, Map, and Research also returned useful content;
 its earlier Crawl run encountered empty results and HTTP 429, while the OAuth
 Crawl run returned content.
 
-The user's manual test independently completed OAuth login and discovered all
-five remote tools. Plugin enablement then failed because this machine's private
-package index returned HTTP 401; it did not establish a package dependency
-conflict. The separately configured MCP connection still worked, but a disabled
-plugin did not expose its skills. The local manual launcher now selects the
-public index for that dedicated test process. Global index settings are unchanged.
+## Actual CLI acceptance test
+
+Package commit `a2066f070625e61ef3d6fad1dd78b1c99d2a9038` was installed from
+GitHub into the dedicated `tavily-plugin-test` profile with `--force --no-enable`,
+then enabled through the actual Hermes CLI. Installation and enablement passed.
+The native OAuth connection reused the user's completed login, and
+`hermes mcp test tavily` discovered all five hosted tools without browser consent.
+
+A fresh CLI conversation using `mcp-tavily,skills`, `--query-file`, and
+`--format stream-json` listed all six qualified Tavily skills plus the separate
+core `hermes-agent` skill. It loaded the Search and Extract skills, discovered
+their live schemas, and made exactly one Search followed by one Extract on the
+returned official URL. Both returned usable payloads, Extract had no failed
+URLs, and the process exited 0 with a cited answer. Assertions inspected the
+actual persisted tool results, rather than accepting the model's completion
+claim or HTTP status alone.
+
+- Search request: `189a7ba2-ae4c-4ae6-9071-0836b8a11349`.
+- Extract request: `facb1cdb-81ba-47f6-ac03-af241e2d5025`.
+- Source: `https://docs.tavily.com/changelog`.
+
+A separate live discovery observation checked outgoing requests against the
+stored OAuth token and exact attribution header. It made no paid tool calls;
+the CLI conversation itself was not instrumented to capture HTTP headers.
+
+All twelve CI jobs for this package commit passed: Linux, macOS, and Windows
+against the pinned stable/development versions, on both push and PR workflows.
+
+### Local test environment repairs
+
+The user's first manual test completed OAuth but failed to enable the plugin
+because the machine's private package index returned HTTP 401. This did not
+establish a package dependency conflict. A working native MCP connection alone
+did not expose the disabled plugin's skills. The dedicated local launcher now
+selects PyPI for that test process; global index settings are unchanged.
+
+After successful admission, Hermes selected a managed dependency environment
+without its optional MCP SDK. Installing the host's declared feature through
+`hermes pm install --extra mcp` restored HTTP MCP support. This is a host
+dependency, not a Tavily CLI requirement or a plugin runtime dependency.
+An initial chat command was rejected before model execution because this
+development revision's gateway does not accept `--run-budget`; the successful
+test omitted that unsupported flag. Neither setup failure made paid Tavily calls.
 
 ## Evidence limits
 
@@ -62,8 +100,8 @@ public index for that dedicated test process. Global index settings are unchange
 - Attribution is verified on outgoing requests; production analytics ingestion
   was not queried.
 - Skills guide model behavior; they do not enforce deterministic request quotas.
-- SDK/API references are developer guidance. Every integration example has not
-  been executed as an application test.
+- The examples are checked against captured hosted schemas. Not every example
+  or error branch has been exercised with a paid live call.
 
 The repository remains internal. The public-clone prerequisite and maintainer
 catalog review are not complete, so catalog submission remains paused.

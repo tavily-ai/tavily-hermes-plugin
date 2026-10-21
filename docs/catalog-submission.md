@@ -56,9 +56,8 @@ remote MCP tool names in the native `provides_tools` list.
 - No runtime dependencies, local executables, shell commands, background
   workers, credential-file reads, core overrides, or self-updater.
 - Five remotely discovered tools and six bundled skills; no Desktop renderer code.
-- The developer skill contains SDK/API installation commands and application
-  examples. They are documentation used during requested development work,
-  subject to Hermes approvals, and are not executed by package installation.
+- All six skills and the Best Practices references use the hosted MCP tools.
+  There are no Tavily CLI or SDK installation commands or client programs.
 - Research may take minutes; stable Hermes needs the documented native timeout
   override for longer calls. The hosted service updates separately from this pin.
 - Link capability coverage and identify the live calls, auth modes, and

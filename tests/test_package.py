@@ -85,23 +85,48 @@ class PackageTests(unittest.TestCase):
 
     def test_operational_examples_match_the_advertised_mcp_contract(self):
         schemas = json.loads((ROOT / "tests" / "fixtures" / "mcp-schemas.json").read_text())
+
+        def check_value(value, field):
+            if value is None and field.get("nullable"):
+                return
+            kind = field.get("type")
+            if kind == "integer":
+                self.assertIs(type(value), int)
+            elif kind == "boolean":
+                self.assertIs(type(value), bool)
+            elif kind == "string":
+                self.assertIsInstance(value, str)
+            elif kind == "array":
+                self.assertIsInstance(value, list)
+                for item in value:
+                    check_value(item, field.get("items", {}))
+            if "enum" in field:
+                self.assertIn(value, field["enum"])
+            if "minimum" in field:
+                self.assertGreaterEqual(value, field["minimum"])
+
         for skill in self.package.skills:
-            if skill.name == "tavily-best-practices":
-                continue
-            schema = schemas["mcp__tavily__" + skill.name.replace("-", "_")]["parameters"]
-            body = skill.skill_md.read_text(encoding="utf-8")
-            examples = re.findall(r"```json\n(.*?)\n```", body, re.DOTALL)
-            self.assertTrue(examples, skill.name)
-            for raw in examples:
-                args = json.loads(raw)
-                self.assertLessEqual(set(args), set(schema["properties"]), skill.name)
-                self.assertLessEqual(set(schema.get("required", [])), set(args), skill.name)
-                for key, value in args.items():
-                    field = schema["properties"][key]
-                    if "enum" in field:
-                        self.assertIn(value, field["enum"], (skill.name, key))
-                    if "minimum" in field:
-                        self.assertGreaterEqual(value, field["minimum"], (skill.name, key))
+            self.assertIn("mcp__tavily__", skill.skill_md.read_text(encoding="utf-8"))
+            for path in skill.root.rglob("*.md"):
+                with self.subTest(path=path.relative_to(ROOT)):
+                    body = path.read_text(encoding="utf-8")
+                    languages = re.findall(r"^```([^\n`]+)$", body, re.MULTILINE)
+                    self.assertTrue(all(lang == "json" for lang in languages), languages)
+                    examples = re.findall(
+                        r"call `(mcp__tavily__\w+)` with:\n\n```json\n(.*?)\n```",
+                        body, re.DOTALL | re.IGNORECASE,
+                    )
+                    self.assertEqual(len(examples), len(languages), "Every example must identify its MCP tool")
+                    if path == skill.skill_md:
+                        self.assertTrue(examples, skill.name)
+                    for tool, raw in examples:
+                        self.assertIn(tool, schemas)
+                        schema = schemas[tool]["parameters"]
+                        args = json.loads(raw)
+                        self.assertLessEqual(set(args), set(schema["properties"]))
+                        self.assertLessEqual(set(schema.get("required", [])), set(args))
+                        for key, value in args.items():
+                            check_value(value, schema["properties"][key])
 
     def _load_connection_example(self, filename, secrets):
         from hermes_cli.plugins import PluginManager
