@@ -1,5 +1,3 @@
-![Tavily for Hermes Agent](assets/tavily-banner.svg)
-
 # Tavily for Hermes Agent
 
 Search the web, extract pages, discover URLs, crawl websites, and run research

@@ -38,10 +38,12 @@ capabilities:
 ```
 
 For the catalog card, set the optional `image` field to the GitHub-hosted HTTPS
-URL for `assets/tavily-banner.svg` at the **same full commit SHA** as the entry.
-The self-contained SVG is 1200×600 (2:1) with a white background so the supplied
-black Tavily mark remains readable in either theme. The original supplied
-mark is preserved in `assets/tavily-logo.svg`. No PNG conversion is required.
+URL for `assets/tavily-catalog-card.svg` at the **same full commit SHA** as the
+entry. This 1200×600 (2:1) SVG centers the official Tavily by Nebius logo on a
+white background, preserving its proportions and keeping it readable in either
+theme. It contains no added branding or text. The supplied originals are
+preserved unchanged in `assets/tavilybynebius-logo-black.svg` (wordmark) and
+`assets/tavily-logo.svg` (square mark). No PNG conversion is required.
 
 The tool, hook, and middleware lists are empty because the package does not
 register native Python capabilities. The default MCP connection requires
