@@ -22,11 +22,11 @@ requiring a key, and that the API-key alternative uses the active profile's key.
 Admission returns `safe`, with no warnings or skipped components. The suite
 also passes in a clean environment containing only `requirements-dev.txt`.
 
-[GitHub Actions run 39614622032](https://github.com/tavily-ai/tavily-hermes-plugin/actions/runs/39614622032)
+[GitHub Actions run 39625518923](https://github.com/tavily-ai/tavily-hermes-plugin/actions/runs/39625518923)
 passed all six jobs at package commit
-`4eb9700c9ab07f8af1b6125efaec7cf55e85cee0`: Linux, macOS, and Windows,
+`3a9e913b5ff946795c7fdff80730cfab2a8642b0`: Linux, macOS, and Windows,
 each against the stable and development Hermes revisions above. Each job ran
-the same eight integration checks. Check the PR's latest run before release.
+the same ten integration checks. Check the PR's latest run before release.
 
 An independent review found no package correctness/security blocker. Its
 research read-inactivity caveat is documented in the README.
@@ -94,6 +94,35 @@ bearer token. Every captured MCP RPC used the stored OAuth access token and
 `X-Client-Name: hermes plugin`. Evidence records only boolean token comparisons
 and non-secret request metadata; access and refresh token values were not logged.
 This verifies client-side attribution, not its storage in Tavily analytics.
+
+## Live agent conversation (2026-10-21)
+
+Ran the actual Hermes `AIAgent.run_conversation()` loop with the installed
+package at `3a9e913b5ff946795c7fdff80730cfab2a8642b0`, Hermes development
+`baf24532a1b95a07fd5505aadbe1faf169b4586b`, and the real `z-ai/glm-5.2`
+model through Nous. The isolated profile used `examples/oauth.yaml`, the cached
+OAuth token, and no Tavily API key. Missing Hermes development dependencies were
+installed into an isolated test environment.
+
+The prompt asked the agent to load the Tavily skill, find IANA's explanation of
+example.com with one Search result restricted to `iana.org`, Extract the returned
+page, and answer with a citation. The model loaded the installed skill, requested
+the live tool schemas, and called Search and Extract through Hermes's normal
+deferred-tool dispatcher. It finished normally after four model calls with a
+cited answer using `https://www.iana.org/help/example-domains`.
+
+Both Tavily tool requests returned HTTP 200. Search returned one source; Extract
+returned one page with 939 characters of content and no failed results. Assertions
+checked the actual response payloads, provider request IDs, the selected URL,
+the final citation, and successful conversation completion. Every captured MCP
+RPC used the stored OAuth token and exact `X-Client-Name: hermes plugin` header.
+The request hooks observed real traffic; model and Tavily responses were not
+mocked.
+
+This covers the agent conversation through Search and Extract. Map, Crawl, and
+Research were exercised directly through Hermes's MCP runtime in the OAuth run
+above. Terminal UI interactions and production analytics ingestion were not
+part of this conversation test.
 
 Do not describe these remaining checks as passed or describe this package as
 an approved Hermes catalog listing until the corresponding evidence exists.
