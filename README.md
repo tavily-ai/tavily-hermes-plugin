@@ -2,7 +2,7 @@
 
 Search the web, extract pages, discover URLs, crawl websites, and run research
 through [Tavily's hosted MCP server](https://docs.tavily.com/documentation/mcp).
-Includes six skills adapted from Tavily's official skills repository for Hermes MCP.
+Includes Tavily skills adapted from the official skills repository for Hermes MCP.
 Requires **Hermes Agent 0.22.2 or later**, with its MCP support installed.
 No local Tavily server, Node.js, or additional runtime dependencies are needed.
 
@@ -124,9 +124,9 @@ Hermes qualifies skill names to avoid collisions. Discover the full name with
 | [tavily-research](skills/tavily-research/SKILL.md) | Produce multi-source research with citations. |
 | [tavily-best-practices](skills/tavily-best-practices/SKILL.md) | Plan reliable MCP retrieval and verification workflows. |
 
-The source is [tavily-ai/skills](https://github.com/tavily-ai/skills). All six
+The source is [tavily-ai/skills](https://github.com/tavily-ai/skills). All included
 skills are adapted to Hermes's MCP tool calls and authentication. Best Practices
-includes six MCP guides covering retrieval, connection handling, and workflows.
+includes MCP guides covering retrieval, connection handling, and workflows.
 The CLI setup and CLI-based Dynamic Search skills are outside this MCP bundle.
 See [skill provenance](docs/skill-provenance.md) for the exact source commit and
 adaptations. Discover qualified skill names with `skills_list`, then load them

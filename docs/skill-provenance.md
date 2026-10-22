@@ -50,7 +50,7 @@ request budget. These are agent instructions rather than runtime quota guards.
 `tavily-best-practices` adapts the source's retrieval planning, query design,
 source filtering, relevance checks, Map-before-Crawl guidance, Research model
 selection, and evidence verification to the same MCP connection as the other
-five skills. All examples use advertised MCP arguments.
+bundled skills. All examples use advertised MCP arguments.
 
 The Search, Extract, Map/Crawl, and Research guides are rewritten for MCP.
 The source's `sdk.md` and `integrations.md` are replaced by `mcp.md` and

@@ -4,7 +4,7 @@ Checked 2026-10-21 on macOS with Python 3.14.6.
 
 ## Current package
 
-The bundle contains six MCP-adapted skills from `tavily-ai/skills` at
+The bundle contains MCP-adapted Tavily skills from `tavily-ai/skills` at
 `778122e5f9c680f541eeceda5a5b36405eb7980c`: Search, Extract, Map, Crawl,
 Research, and Best Practices. CLI setup, Dynamic Search, and use-case skills
 are outside this bundle. See [provenance](skill-provenance.md).
@@ -20,7 +20,7 @@ Eleven integration checks pass against:
   data-only catalog entry; submission remains paused).
 
 The suite uses the real Hermes admission validator, portable loader, plugin
-manager, and `skill_view`. It verifies all six skill names, authoring metadata,
+manager, and `skill_view`. It verifies all bundled skill names, authoring metadata,
 enabled/disabled discovery, every skill and reference file, the OAuth and
 API-key examples, profile credential isolation, missing credentials under
 multiplexing, attribution, and redirect boundaries.
@@ -30,7 +30,7 @@ hosted MCP schemas captured on 2026-10-21. Schema discovery used the actual
 OAuth connection and made no paid tool calls. The snapshot is test data, not
 a runtime parameter allowlist; the connected server remains authoritative.
 
-The example contract check covers all six skills and their reference guides,
+The example contract check covers all bundled skills and their reference guides,
 including tool names, required fields, argument types, enum values, and numeric
 minimums. Every executable example is an MCP argument object; no Tavily CLI or
 SDK client programs remain. The rewritten Best Practices guides document the
@@ -62,7 +62,7 @@ The native OAuth connection reused the user's completed login, and
 `hermes mcp test tavily` discovered all five hosted tools without browser consent.
 
 A fresh CLI conversation using `mcp-tavily,skills`, `--query-file`, and
-`--format stream-json` listed all six qualified Tavily skills plus the separate
+`--format stream-json` listed all qualified Tavily skills plus the separate
 core `hermes-agent` skill. It loaded the rewritten Best Practices skill and its
 new `references/mcp.md` and `references/workflows.md` guides, discovered the
 Search/Extract schemas, and made exactly one Search followed by one Extract on the

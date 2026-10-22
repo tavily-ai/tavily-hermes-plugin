@@ -22,7 +22,7 @@ name: tavily
 title: Tavily
 repo: https://github.com/tavily-ai/tavily-hermes-plugin
 # sha: insert the reviewed, pushed 40-character commit SHA
-description: Web search, extraction, mapping, crawling, and research through Tavily MCP, with six Tavily skills.
+description: Web search, extraction, mapping, crawling, and research through Tavily MCP, with Tavily skills.
 maintainer: tavily-ai
 tier: community
 category: web
@@ -54,7 +54,7 @@ remote MCP tool names in the native `provides_tools` list.
 
 ## Disclosures for the PR
 
-- Tavily-maintained portable package adapting six skills from `tavily-ai/skills`;
+- Tavily-maintained portable package adapting Tavily skills from `tavily-ai/skills`;
   no fork of a Hermes bundled provider.
 - HTTPS requests to `mcp.tavily.com`; Tavily processes queries, URLs, and research
   instructions, using account credits.
@@ -64,8 +64,8 @@ remote MCP tool names in the native `provides_tools` list.
   README and examples explicitly separate the two methods.
 - No runtime dependencies, local executables, shell commands, background
   workers, credential-file reads, core overrides, or self-updater.
-- Five remotely discovered tools and six bundled skills; no Desktop renderer code.
-- All six skills and the Best Practices references use the hosted MCP tools.
+- Five remotely discovered tools and bundled Tavily skills; no Desktop renderer code.
+- All bundled skills and the Best Practices references use the hosted MCP tools.
   There are no Tavily CLI or SDK installation commands or client programs.
 - Research may take minutes; stable Hermes needs the documented native timeout
   override for longer calls. The hosted service updates separately from this pin.
