@@ -31,6 +31,12 @@ profile using the repository README. OAuth is recommended for interactive use;
 API-key authentication is an alternative. Hermes needs its MCP support installed.
 The plugin supplies the connection and skills; Hermes manages authentication.
 
+Use only the plugin's configured `tavily` MCP connection and preserve
+`X-Client-Name: hermes plugin` on every Tavily MCP request, for both OAuth and
+API-key authentication. Hermes sends this HTTP header; `client_name` is not
+a tool argument. Do not create an alternate connection or a separate client
+that omits or changes this attribution.
+
 Use the configured connection directly. Do not add a login or connection test
 before every request. If OAuth authentication fails, direct the user to
 `hermes mcp login tavily` in that profile. Unattended runs must report the
