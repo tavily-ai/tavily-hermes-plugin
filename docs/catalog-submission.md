@@ -9,7 +9,7 @@ does not satisfy that publication prerequisite.
 
 1. Run package tests and `hermes plugins validate /path/to/plugin --install-deps`.
 2. Push the reviewed package commit and resolve its full 40-character SHA.
-3. In a separate Hermes branch, add `plugin-catalog/tavily.yaml` using the
+3. In a separate Hermes branch, add `plugin-catalog/tavily-plugin.yaml` using the
    metadata below and the **real pushed SHA**. Never submit a branch, tag,
    short SHA, or placeholder.
 4. Run Hermes's catalog schema check and plugin validation at that exact commit.
@@ -18,7 +18,7 @@ does not satisfy that publication prerequisite.
    vendor verification in prose; only Nous maintainers set `tier: verified`.
 
 ```yaml
-name: tavily
+name: tavily-plugin
 title: Tavily
 repo: https://github.com/tavily-ai/tavily-hermes-plugin
 # sha: insert the reviewed, pushed 40-character commit SHA

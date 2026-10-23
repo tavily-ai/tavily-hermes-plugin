@@ -132,10 +132,10 @@ class PackageTests(unittest.TestCase):
         from hermes_cli.plugins import PluginManager
 
         home = Path(self.temp.name) / "configured-home"
-        installed = home / "plugins" / "tavily"
+        installed = home / "plugins" / "tavily-plugin"
         shutil.copytree(ROOT, installed, ignore=shutil.ignore_patterns(".git", "__pycache__", "verification-results"))
         (home / "config.yaml").write_text(
-            "plugins:\n  enabled: [tavily]\n" + (ROOT / "examples" / filename).read_text(encoding="utf-8"),
+            "plugins:\n  enabled: [tavily-plugin]\n" + (ROOT / "examples" / filename).read_text(encoding="utf-8"),
             encoding="utf-8",
         )
         bundled = home / "empty-bundled"
@@ -173,11 +173,25 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(server["timeout"], 900)
         self.assertTrue(server["strict_redirect_headers"])
 
+    def test_plugin_commands_do_not_shadow_bundled_tavily_backend(self):
+        from hermes_cli import plugins_cmd
+
+        home = Path(self.temp.name) / "resolver-home"
+        installed = home / "plugins" / "tavily-plugin"
+        shutil.copytree(ROOT, installed, ignore=shutil.ignore_patterns(".git", "__pycache__", "verification-results"))
+        bundled = home / "bundled"
+        backend = bundled / "web" / "tavily"
+        backend.mkdir(parents=True)
+        (backend / "plugin.yaml").write_text("name: web-tavily\nversion: 1.0.0\nkind: backend\n", encoding="utf-8")
+        with patch.dict(os.environ, {"HERMES_HOME": str(home), "HERMES_BUNDLED_PLUGINS": str(bundled)}):
+            self.assertEqual(plugins_cmd._resolve_plugin_key("tavily"), "web/tavily")
+            self.assertEqual(plugins_cmd._resolve_plugin_key("tavily-plugin"), "tavily-plugin")
+
     def test_installed_package_exposes_skill_and_mcp_only_when_enabled(self):
         from hermes_cli.plugins import PluginManager
 
         home = Path(self.temp.name) / "home"
-        installed = home / "plugins" / "tavily"
+        installed = home / "plugins" / "tavily-plugin"
         shutil.copytree(ROOT, installed, ignore=shutil.ignore_patterns(".git", "__pycache__", "verification-results"))
         bundled = home / "empty-bundled"
         bundled.mkdir()
@@ -185,7 +199,7 @@ class PackageTests(unittest.TestCase):
             for enabled in (False, True):
                 with self.subTest(enabled=enabled):
                     (home / "config.yaml").write_text(
-                        "plugins:\n  enabled: " + ("[tavily]" if enabled else "[]") + "\n",
+                        "plugins:\n  enabled: " + ("[tavily-plugin]" if enabled else "[]") + "\n",
                         encoding="utf-8",
                     )
                     manager = PluginManager(scope_key=str(home))
@@ -194,7 +208,7 @@ class PackageTests(unittest.TestCase):
                         self.assertEqual(bool(manager.get_portable_mcp_servers()), enabled)
                         self.assertEqual(len(manager.list_plugin_skill_metadata()), len(EXPECTED_SKILLS) if enabled else 0)
                         if enabled:
-                            row = next(p for p in manager.list_plugins() if p["name"] == "tavily")
+                            row = next(p for p in manager.list_plugins() if p["name"] == "tavily-plugin")
                             self.assertIsNone(row["error"])
                             from tools.skills_tool import skill_view
 
