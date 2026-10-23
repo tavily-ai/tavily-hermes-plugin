@@ -87,7 +87,7 @@ After connecting with either method:
 
 ```bash
 hermes plugins list
-hermes plugins enable tavily
+hermes plugins enable tavily-plugin
 ```
 
 If `plugins list` shows a different installed key, use that key for enable/disable.
