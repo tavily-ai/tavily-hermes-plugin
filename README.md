@@ -1,30 +1,20 @@
 # Tavily for Hermes Agent
 
-Search the web, extract pages, discover URLs, crawl websites, and run research
-through [Tavily's hosted MCP server](https://docs.tavily.com/documentation/mcp).
-Includes Tavily skills adapted from the official skills repository for Hermes MCP.
-Requires **Hermes Agent 0.22.2 or later**, with its MCP support installed.
-No local Tavily server, Node.js, or additional runtime dependencies are needed.
+Tavily gives Hermes Agent current information from the web. With this plugin, Hermes can search the web and cite its sources, read the full text of any page, map and crawl a documentation site, and run multi-source research that returns a cited report.
 
-## Install and connect
+The plugin connects Hermes to Tavily's hosted MCP server, so nothing runs on your machine. It also bundles Tavily skills that tell Hermes which tool fits a task, how to apply domain and date filters, and how to verify what it retrieved before relying on it.
 
-Install the plugin, then choose **one** authentication method below. OAuth is
-recommended for interactive use: sign in to Tavily and let Hermes manage the
-tokens. API keys are an alternative for automation or a specific project key.
-Use the same Hermes profile for installation, configuration, login, and chat.
+## Install
 
 ```bash
-hermes plugins install tavily-ai/tavily-hermes-plugin --no-enable
+hermes plugins install tavily-ai/tavily-hermes-plugin
 ```
 
-The repository is installable directly by users who have access. It is not yet
-an approved catalog listing.
+The plugin requires Hermes Agent 0.22.2 or later with MCP support installed. After installing, connect your Tavily account with one of the two methods below. Use the same Hermes profile for installation, configuration, login, and chat.
 
 ### OAuth (recommended)
 
-Merge [this connection](examples/oauth.yaml) into your active profile's
-`config.yaml`. Replace any existing `mcp_servers.tavily` entry as a whole;
-preserve the other servers in the file.
+OAuth lets you sign in to Tavily in the browser while Hermes stores and refreshes the tokens. Merge [this connection](examples/oauth.yaml) into your active profile's `config.yaml`, replacing any existing `mcp_servers.tavily` entry and keeping the other servers in the file:
 
 ```yaml
 mcp_servers:
@@ -37,35 +27,23 @@ mcp_servers:
       X-Client-Name: "hermes plugin"
 ```
 
-Authenticate from a terminal:
+Then sign in from a terminal:
 
 ```bash
 hermes mcp login tavily
 ```
 
-Complete the browser sign-in and authorization. Hermes stores and refreshes the
-OAuth tokens. No `TAVILY_API_KEY` is needed for this connection. Do not add a
-static `Authorization` header: Hermes supplies the OAuth bearer token.
+You do not need a `TAVILY_API_KEY` for this connection. Do not add an `Authorization` header, because Hermes supplies the OAuth bearer token.
 
-**Why a configuration step?** The portable plugin format supported by Hermes
-0.22.2 cannot declare OAuth. The native `tavily` connection above takes precedence
-over the packaged API-key connection. Installing the plugin alone does not
-activate OAuth. The plugin never rewrites your profile or manages tokens itself.
+The config step is needed because the portable plugin format in Hermes 0.22.2 cannot declare OAuth. A native `tavily` entry in `config.yaml` takes precedence over the API-key connection packaged with the plugin. The plugin never edits your profile or handles tokens itself.
 
-For unattended runs, complete the login first. If refresh is rejected, run
-`hermes mcp login tavily` again; background jobs cannot complete browser consent.
+For unattended runs, complete the login first. If a token refresh is rejected, run `hermes mcp login tavily` again, since background jobs cannot complete browser consent. See [Hermes OAuth](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp#oauth-authenticated-http-servers) and [Tavily OAuth](https://docs.tavily.com/documentation/mcp#oauth-authentication) for details.
 
-See [Hermes OAuth](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp#oauth-authenticated-http-servers)
-and [Tavily OAuth](https://docs.tavily.com/documentation/mcp#oauth-authentication).
+### API key
 
-### API key (alternative)
+Use an API key for automation or when you want requests billed to a specific project key. Set `TAVILY_API_KEY` through Hermes's API-key settings for the active profile, and keep the key out of chat, URLs, and this repository.
 
-Configure `TAVILY_API_KEY` through Hermes's API-key settings for the active
-profile. Keep the key out of chat, URLs, this repository, and `mcp.json`.
-
-The package's `mcp.json` supplies this authentication method when there is no
-native `tavily` entry. For the longer research deadline, or to switch from OAuth,
-replace the native entry with [the API-key connection](examples/api-key.yaml):
+The plugin's `mcp.json` uses this key whenever there is no native `tavily` entry in `config.yaml`. To get the longer research timeout, or to switch from OAuth, replace the native entry with [the API-key connection](examples/api-key.yaml):
 
 ```yaml
 mcp_servers:
@@ -78,32 +56,17 @@ mcp_servers:
       X-Client-Name: "hermes plugin"
 ```
 
-Use this complete entry when switching methods; do not retain `auth: oauth`.
-Hermes resolves the placeholder from the active profile.
+Replace the whole entry when switching methods so that `auth: oauth` is removed. Hermes resolves the placeholder from the active profile.
 
-### Enable and verify
+### Verify the connection
 
-After connecting with either method:
+If you added a native `mcp_servers.tavily` entry, run `hermes mcp test tavily`. It should discover five Tavily tools. Hermes 0.22.2 cannot test the packaged API-key connection this way, so check that setup in a fresh chat instead. If Hermes reports that the MCP SDK or HTTP transport is unavailable, install the MCP optional feature following your Hermes version's instructions.
 
-```bash
-hermes plugins list
-hermes plugins enable tavily-plugin
-```
-
-If `plugins list` shows a different installed key, use that key for enable/disable.
-If you configured a native `mcp_servers.tavily` entry, run
-`hermes mcp test tavily`; it should discover five Tavily tools. Hermes 0.22.2's
-connection-test command does not inspect the packaged API-key fallback, so
-verify that fallback in a fresh chat instead. If Hermes reports that
-the MCP SDK or HTTP transport is unavailable, install the MCP optional feature
-using your Hermes version's installation instructions before continuing.
-Start a fresh session. Ask Hermes to find and load `tavily-search` with `skills_list`
-and `skill_view`, then try:
+Start a new session, ask Hermes to find and load `tavily-search` with `skills_list` and `skill_view`, and then try a prompt such as:
 
 > Search Tavily's official documentation for search-depth options and cite the sources.
 
-Hermes qualifies skill names to avoid collisions. Discover the full name with
-`skills_list`.
+Hermes prefixes skill names to avoid collisions, so use `skills_list` to find the full name.
 
 ## Tools and skills
 
@@ -124,46 +87,23 @@ Hermes qualifies skill names to avoid collisions. Discover the full name with
 | [tavily-research](skills/tavily-research/SKILL.md) | Produce multi-source research with citations. |
 | [tavily-best-practices](skills/tavily-best-practices/SKILL.md) | Plan reliable MCP retrieval and verification workflows. |
 
-The source is [tavily-ai/skills](https://github.com/tavily-ai/skills). All included
-skills are adapted to Hermes's MCP tool calls and authentication. Best Practices
-includes MCP guides covering retrieval, connection handling, and workflows.
-The CLI setup and CLI-based Dynamic Search skills are outside this MCP bundle.
-See [skill provenance](docs/skill-provenance.md) for the exact source commit and
-adaptations. Discover qualified skill names with `skills_list`, then load them
-and their references with `skill_view`.
+The skills are adapted from [tavily-ai/skills](https://github.com/tavily-ai/skills) to call the MCP tools above, so none of them needs the Tavily CLI, an SDK, or a separate login. The CLI setup and Dynamic Search skills are not included because they depend on the CLI. [Skill provenance](docs/skill-provenance.md) lists the source commit and every adaptation.
 
-No skill requires a separate Tavily client, CLI login, or SDK installation.
-Examples use only the connected MCP interface; they do not introduce direct API
-parameters or a separate application authentication flow.
+The plugin exposes the tools and parameters that Tavily's hosted MCP server advertises, which can differ from Tavily's direct API; see [capability coverage](docs/capability-coverage.md). It does not change which provider Hermes's built-in `web_search` and `web_extract` use.
 
-The plugin exposes the tools and parameters advertised by Tavily's hosted MCP
-server. Availability may differ from Tavily's direct API. See
-[capabilities](docs/capability-coverage.md). It does not change Hermes's built-in
-`web_search` or `web_extract` provider selection.
+## Research timeouts
 
-## Research deadlines
+Both native connection examples set a 900-second tool timeout. Hermes 0.22.2 does not support per-server timeouts in portable manifests, so the packaged API-key connection uses Hermes's default timeout.
 
-The two native connection examples set a 900-second tool deadline. Hermes 0.22.2
-does not support per-server timeouts inside portable manifests, so the packaged
-connection alone uses Hermes's default deadline.
-
-The HTTP transport also has a 300-second read-inactivity limit. A longer tool
-deadline does not prevent a disconnect if the server sends no intervening
-events. A timeout does not prove that the server-side research task was cancelled;
-investigate the existing task before submitting another paid request.
+The HTTP transport also disconnects after 300 seconds without data, regardless of the tool timeout. A client-side timeout does not cancel the research task on Tavily's side, so check the existing task before submitting another paid request.
 
 ## Data flow and attribution
 
-- Requests go to `https://mcp.tavily.com/mcp/`. Tavily processes the queries, URLs,
-  filters, and research instructions using your Tavily account.
-- Both connection examples retain **`X-Client-Name: hermes plugin`**, the HTTP
-  equivalent of the Python SDK's `client_name="hermes plugin"`.
-- OAuth also contacts the authorization endpoints discovered by Hermes. Hermes
-  owns configuration, credential storage, token refresh, and the MCP runtime.
-- The package runs no local tool processes, background workers, credential-file
-  readers, self-updaters, or separate analytics collectors.
-- Web content is untrusted evidence. The skills preserve task scope and rejects
-  instructions embedded in retrieved pages.
+- Requests go to `https://mcp.tavily.com/mcp/`, where Tavily processes your queries, URLs, filters, and research instructions under your Tavily account.
+- Both connection examples send the header `X-Client-Name: hermes plugin`, which matches the Python SDK's `client_name="hermes plugin"`.
+- With OAuth, Hermes also contacts the authorization endpoints it discovers. Hermes owns configuration, credential storage, token refresh, and the MCP runtime.
+- The plugin runs no local processes, background workers, credential-file readers, self-updaters, or analytics collectors.
+- The skills treat retrieved web content as untrusted and ignore instructions embedded in pages.
 
 ## Troubleshooting
 
@@ -172,15 +112,14 @@ investigate the existing task before submitting another paid request.
 | OAuth authorization fails or expires | Run `hermes mcp login tavily` interactively in the correct profile. |
 | Missing API key or HTTP 401 with API-key setup | Configure a valid key in that profile. |
 | No tools | Confirm the connection and plugin are enabled, then restart the session. |
-| Duplicate server warning | A native `tavily` entry intentionally takes precedence over the package connection. |
-| Wrong attribution after changing configuration | Retain `X-Client-Name: "hermes plugin"` in the native entry. |
-| Rate or credit limit | Check account limits; avoid repeated retries. |
-| Research timeout | Check the deadlines above and investigate the existing request before rerunning. |
+| Duplicate server warning | This is expected, because a native `tavily` entry takes precedence over the packaged connection. |
+| Wrong attribution after changing configuration | Keep `X-Client-Name: "hermes plugin"` in the native entry. |
+| Rate or credit limit | Check account limits and avoid repeated retries. |
+| Research timeout | See the timeouts above and check the existing request before rerunning. |
 
 ## Development
 
-The installed plugin is data and Markdown. Test dependencies are separate and
-hash-pinned. With Python 3.14 and a Hermes checkout:
+The installed plugin contains only data and Markdown. Test dependencies are separate and hash-pinned. With Python 3.14 and a Hermes checkout:
 
 ```bash
 python -m venv .venv
@@ -190,13 +129,9 @@ python scripts/test.py --hermes-source /path/to/hermes-agent
 hermes plugins validate . --install-deps
 ```
 
-Tests use temporary profiles and synthetic credentials to exercise admission,
-skill discovery, both connection configurations, profile isolation, attribution,
-and redirect handling. CI uses pinned stable/development Hermes revisions on
-Linux, macOS, and Windows without paid calls or repository secrets.
+Tests use temporary profiles and synthetic credentials to cover admission, skill discovery, both connection configurations, profile isolation, attribution, and redirect handling. CI runs against pinned stable and development Hermes revisions on Linux, macOS, and Windows without paid calls or repository secrets.
 
-See [verification](docs/verification.md) for live test evidence and
-[catalog submission](docs/catalog-submission.md) for the listing process.
+See [verification](docs/verification.md) for live test evidence and [catalog submission](docs/catalog-submission.md) for the listing process.
 
 ## License
 
