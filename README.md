@@ -1,6 +1,6 @@
 # Tavily for Hermes Agent
 
-Tavily gives Hermes Agent current information from the web. With this plugin, Hermes can search the web and cite its sources, read the full text of any page, map and crawl a documentation site, and run multi-source research that returns a cited report.
+Tavily gives Hermes Agent fast, accurate, and agent-ready web data. With this plugin, Hermes can search the web and cite its sources, read the full text of any page, map and crawl a documentation site, and run multi-source research that returns a cited report.
 
 The plugin connects Hermes to Tavily's hosted MCP server, so nothing runs on your machine. It also bundles Tavily skills that tell Hermes which tool fits a task, how to apply domain and date filters, and how to verify what it retrieved before relying on it.
 
