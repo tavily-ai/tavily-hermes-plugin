@@ -7,7 +7,7 @@ The plugin connects Hermes to Tavily's hosted MCP server, so nothing runs on you
 ## Install
 
 ```bash
-hermes plugins install tavily-ai/tavily-hermes-plugin
+hermes plugins install tavily-plugin
 ```
 
 The plugin requires Hermes Agent 0.22.2 or later with MCP support installed. After installing, connect your Tavily account with one of the two methods below. Use the same Hermes profile for installation, configuration, login, and chat.
